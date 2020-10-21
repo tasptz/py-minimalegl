@@ -34,3 +34,10 @@ Running `example.py` should give something similar to
 ```
 OpenGL 4.6
 ```
+# Usage
+With [PyOpenGL](http://pyopengl.sourceforge.net/):
+```
+import os
+os.environ['PYOPENGL_PLATFORM'] = 'egl'
+from OpenGL.GL import *
+```
