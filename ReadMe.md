@@ -41,3 +41,7 @@ import os
 os.environ['PYOPENGL_PLATFORM'] = 'egl'
 from OpenGL.GL import *
 ```
+If there are multiple GPUs, select one by exporting its index, e.g.
+```
+export EGL_DEVICE=1
+```

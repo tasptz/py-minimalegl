@@ -4,7 +4,7 @@
 
 namespace megl {
 
-std::tuple<int, int> init();
+std::tuple<int, int> init(int device);
 void destroy();
 
 }

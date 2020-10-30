@@ -8,7 +8,7 @@
 int main(int argc, char *argv[])
 {
     try {
-        auto t = megl::init();
+        auto t = megl::init(0);
         std::cout << "EGL " << std::get<0>(t) << "." << std::get<1>(t) << std::endl;
 
         int ma = -1;

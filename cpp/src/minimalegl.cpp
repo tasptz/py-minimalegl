@@ -1,8 +1,11 @@
 #include <EGL/egl.h>
+#define EGL_EGLEXT_PROTOTYPES
+#include <EGL/eglext.h>
 
 #include <stdexcept>
 #include <sstream>
 #include <tuple>
+#include <vector>
 
 static const EGLint configAttribs[] = {
         EGL_SURFACE_TYPE, EGL_PBUFFER_BIT,
@@ -28,27 +31,35 @@ void checkEglError() {
 }
 
 namespace megl {
+std::tuple<int, int> init(int device) {
+    // 1. Get Devices
+    std::vector<EGLDeviceEXT> devices(device + 1);
+    EGLint numDevices;
+    auto eglQueryDevicesEXT = reinterpret_cast<PFNEGLQUERYDEVICESEXTPROC>(eglGetProcAddress("eglQueryDevicesEXT"));
+    eglQueryDevicesEXT(devices.size(), &devices[0], &numDevices);
+    if (numDevices < devices.size()) {
+        throw std::runtime_error("EGL device not found");
+    }
 
-std::tuple<int, int> init() {
-    // 1. Initialize EGL
-    eglDpy = eglGetDisplay(EGL_DEFAULT_DISPLAY);
+    // 2. Initialize EGL
+    eglDpy = eglGetPlatformDisplay(EGL_PLATFORM_DEVICE_EXT, devices[device], nullptr);
 
     EGLint major, minor;
     eglInitialize(eglDpy, &major, &minor);
 
-    // 2. Select an appropriate configuration
+    // 3. Select an appropriate configuration
     EGLint numConfigs;
     EGLConfig eglCfg;
     eglChooseConfig(eglDpy, configAttribs, &eglCfg, 1, &numConfigs);
 
-    // 3. Bind the API
+    // 4. Bind the API
     eglBindAPI(EGL_OPENGL_API);
 
-    // 4. Create a context and make it current
+    // 5. Create a context and make it current
     eglCtx = eglCreateContext(eglDpy, eglCfg, EGL_NO_CONTEXT, NULL);
     eglMakeCurrent(eglDpy, EGL_NO_SURFACE, EGL_NO_SURFACE, eglCtx);
 
-    // 5. EGL setup done, check for errors
+    // 6. EGL setup done, check for errors
     checkEglError();
 
     int ma = -1;
@@ -60,7 +71,7 @@ std::tuple<int, int> init() {
 }
 
 void destroy() {
-    // 6. Terminate EGL when finished
+    // 7. Terminate EGL when finished
     if (eglCtx) {
         eglDestroyContext(eglDpy, eglCtx);
         eglCtx = nullptr;
